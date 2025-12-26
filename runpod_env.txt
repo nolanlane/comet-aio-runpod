@@ -1,0 +1,4 @@
+INDEXER_MANAGER_URL=http://127.0.0.1:9696
+CF_TUNNEL_TOKEN=your_cloudflared_token_here
+PROWLARR_API_KEY=your_prowlarr_api_key_here
+# Add any specific Comet Environment Variables below if needed

@@ -1,0 +1,12 @@
+#!/command/with-contenv
+
+# Wait for Prowlarr to be ready
+echo "Waiting for Prowlarr at http://127.0.0.1:9696..."
+until curl -s http://127.0.0.1:9696 > /dev/null; do
+  sleep 2
+done
+echo "Prowlarr is up. Starting Comet..."
+
+# Start Comet
+cd /app/comet
+exec python3 main.py

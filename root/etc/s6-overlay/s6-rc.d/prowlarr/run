@@ -1,0 +1,2 @@
+#!/command/with-contenv
+/usr/bin/Prowlarr/Prowlarr -nobrowser -data=/config/prowlarr

@@ -1,0 +1,3 @@
+#!/command/with-contenv
+# Run cloudflared with the provided token
+exec cloudflared tunnel --no-autoupdate run --token "$CF_TUNNEL_TOKEN"
