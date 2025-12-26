@@ -1,7 +1,17 @@
 #!/command/with-contenv
 
+echo "=== PROWLARR START ==="
+
 # Ensure configuration directory exists
 mkdir -p /config/prowlarr
+
+# Check if Prowlarr binary exists
+if [ ! -f "/usr/bin/Prowlarr/Prowlarr" ]; then
+    echo "ERROR: Prowlarr binary not found at /usr/bin/Prowlarr/Prowlarr"
+    echo "Contents of /usr/bin/Prowlarr:"
+    ls -la /usr/bin/Prowlarr/ 2>/dev/null || echo "Directory not found"
+    exit 1
+fi
 
 # FORCE Prowlarr (.NET Core) to bind to 0.0.0.0 on port 9696
 # This overrides any internal config.xml settings that might default to localhost
@@ -11,7 +21,22 @@ echo "Starting Prowlarr with configuration:"
 echo "  - Data directory: /config/prowlarr"
 echo "  - Port: 9696"
 echo "  - URLs: ${ASPNETCORE_URLS}"
-echo "  - Command: /usr/bin/Prowlarr/Prowlarr -nobrowser -data=/config/prowlarr"
+echo "  - Binary: $(ls -la /usr/bin/Prowlarr/Prowlarr)"
 
-# Start Prowlarr with explicit output
-exec /usr/bin/Prowlarr/Prowlarr -nobrowser -data=/config/prowlarr 2>&1
+# Start Prowlarr with explicit output and error handling
+echo "Executing Prowlarr..."
+/usr/bin/Prowlarr/Prowlarr -nobrowser -data=/config/prowlarr &
+PROWLARR_PID=$!
+
+echo "Prowlarr started with PID: $PROWLARR_PID"
+sleep 5
+
+# Check if it's still running
+if kill -0 $PROWLARR_PID 2>/dev/null; then
+    echo "Prowlarr is running"
+    # Keep the process in foreground
+    wait $PROWLARR_PID
+else
+    echo "ERROR: Prowlarr failed to start"
+    exit 1
+fi

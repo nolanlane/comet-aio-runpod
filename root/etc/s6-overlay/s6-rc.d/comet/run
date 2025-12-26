@@ -1,5 +1,7 @@
 #!/command/with-contenv
 
+echo "=== COMET START ==="
+
 # Wait for Prowlarr to be ready
 echo "Waiting for Prowlarr at http://127.0.0.1:9696..."
 MAX_WAIT=60
@@ -20,6 +22,20 @@ echo "Prowlarr is up. Starting Comet..."
 
 # Start Comet
 cd /app/comet
+echo "Current directory: $(pwd)"
+
+# Check if Comet directory exists
+if [ ! -d "/app/comet" ]; then
+    echo "ERROR: Comet directory not found at /app/comet"
+    exit 1
+fi
+
+# Check if uv is available
+if ! command -v uv &> /dev/null; then
+    echo "ERROR: uv command not found"
+    exit 1
+fi
+
 # FORCE unbuffered output so logs appear instantly
 export PYTHONUNBUFFERED=1
 # FORCE binding to 0.0.0.0 via command line args if possible, or env vars
@@ -27,11 +43,22 @@ export FASTAPI_HOST=0.0.0.0
 export FASTAPI_PORT=8000
 
 echo "Starting Comet with configuration:"
-echo "  - Working directory: $(pwd)"
 echo "  - Host: ${FASTAPI_HOST}"
 echo "  - Port: ${FASTAPI_PORT}"
-echo "  - Command: uv run python -m comet.main"
+echo "  - UV version: $(uv --version)"
 
+# Test if we can import comet
+echo "Testing Comet import..."
+if ! uv run python -c "import comet; print('Comet import successful')" 2>/dev/null; then
+    echo "ERROR: Failed to import Comet module"
+    echo "Trying to install dependencies again..."
+    uv sync
+    if ! uv run python -c "import comet; print('Comet import successful after sync')" 2>/dev/null; then
+        echo "ERROR: Comet still cannot be imported after uv sync"
+        exit 1
+    fi
+fi
+
+echo "Starting Comet service..."
 # CRITICAL FIX: Use the new official startup method with uv
-# This matches the latest Comet installation instructions
-exec uv run python -m comet.main 2>&1
+exec uv run python -m comet.main

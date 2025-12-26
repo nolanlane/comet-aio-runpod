@@ -1,29 +1,22 @@
 #!/command/with-contenv
 
-# Debug script to check what's actually running
-echo "=== SERVICE STATUS DEBUG ==="
-echo "Time: $(date)"
-echo "Processes:"
-ps aux | grep -E "(Prowlarr|comet|uvicorn)" | grep -v grep || echo "No matching processes found"
+echo "=== DEBUG START ==="
+echo "Current directory: $(pwd)"
+echo "PATH: $PATH"
+echo "Python version: $(python3 --version 2>/dev/null || echo 'Python not found')"
+echo "UV version: $(uv --version 2>/dev/null || echo 'UV not found')"
 echo ""
-echo "Network connections:"
-netstat -tlnp 2>/dev/null | grep -E "(9696|8000)" || echo "No listeners on 9696/8000"
-echo ""
-echo "S6 service status:"
-s6-rc -a list | while read service; do
-    status=$(s6-svstat /var/run/s6/services/$service 2>/dev/null || echo "unknown")
-    echo "$service: $status"
-done
-echo "=== END DEBUG ==="
 
-# Sleep for 30 seconds, then run again, then exit
-sleep 30
+echo "Checking if Prowlarr binary exists:"
+ls -la /usr/bin/Prowlarr/ || echo "Prowlarr directory not found"
 echo ""
-echo "=== SECOND DEBUG CHECK ==="
-echo "Time: $(date)"
-echo "Processes:"
-ps aux | grep -E "(Prowlarr|comet|uvicorn)" | grep -v grep || echo "No matching processes found"
+
+echo "Checking Comet directory:"
+ls -la /app/comet/ || echo "Comet directory not found"
 echo ""
-echo "Network connections:"
-netstat -tlnp 2>/dev/null | grep -E "(9696|8000)" || echo "No listeners on 9696/8000"
-echo "=== END SECOND DEBUG ==="
+
+echo "Checking uv sync status:"
+cd /app/comet && uv run python -c "print('UV sync working')" 2>/dev/null || echo "UV sync failed"
+echo ""
+
+echo "=== DEBUG END ==="
