@@ -9,4 +9,12 @@ echo "Prowlarr is up. Starting Comet..."
 
 # Start Comet
 cd /app/comet
-exec python3 main.py
+# FORCE unbuffered output so logs appear instantly
+export PYTHONUNBUFFERED=1
+# FORCE binding to 0.0.0.0 via command line args if possible, or env vars
+export FASTAPI_HOST=0.0.0.0
+export FASTAPI_PORT=8000
+
+# Run uvicorn directly to bypass any main.py logic issues or gunicorn complexity
+# This is the "Nuclear Option" to guarantee the server starts on the right port/interface
+exec uvicorn comet.api.app:app --host 0.0.0.0 --port 8000 --workers 4
