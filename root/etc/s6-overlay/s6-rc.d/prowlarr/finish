@@ -1,0 +1,22 @@
+#!/command/with-contenv
+
+# Enhanced health check script for Prowlarr
+echo "Running Prowlarr health check..."
+
+# Wait a bit for Prowlarr to fully start
+sleep 5
+
+# Check if Prowlarr process is running
+if ! pgrep -f "Prowlarr" > /dev/null; then
+    echo "ERROR: Prowlarr process is not running"
+    exit 1
+fi
+
+# Check if Prowlarr is responding on port 9696
+if ! curl -s -f http://127.0.0.1:9696 > /dev/null 2>&1; then
+    echo "ERROR: Prowlarr is not responding on port 9696"
+    exit 1
+fi
+
+echo "Prowlarr health check passed"
+exit 0

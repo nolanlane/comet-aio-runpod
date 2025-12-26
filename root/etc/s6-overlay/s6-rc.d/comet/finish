@@ -1,0 +1,22 @@
+#!/command/with-contenv
+
+# Enhanced health check script for Comet
+echo "Running Comet health check..."
+
+# Check if Comet process is running
+if ! pgrep -f "uv run python -m comet.main" > /dev/null; then
+    echo "ERROR: Comet process is not running"
+    exit 1
+fi
+
+# Check if Comet is responding on port 8000
+if ! curl -s -f http://127.0.0.1:8000/health > /dev/null 2>&1; then
+    echo "WARNING: Comet health endpoint not responding, trying basic connectivity..."
+    if ! curl -s -f http://127.0.0.1:8000 > /dev/null 2>&1; then
+        echo "ERROR: Comet is not responding on port 8000"
+        exit 1
+    fi
+fi
+
+echo "Comet health check passed"
+exit 0

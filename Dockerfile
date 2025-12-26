@@ -50,28 +50,16 @@ RUN mkdir -p /usr/bin/Prowlarr && \
 RUN git clone https://github.com/g0ldyy/comet /app/comet
 WORKDIR /app/comet
 
-# Install Python Dependencies manually
-# CRITICAL FIX: Exclude 'asyncio' (built-in to Py3.11, breaks if installed from PyPI).
-# We install dependencies explicitly to bypass pyproject.toml errors.
+# Install uv and dependencies using the new method
+# CRITICAL FIX: Use uv for dependency management as per latest Comet requirements
+# Exclude 'asyncio' (built-in to Py3.11, breaks if installed from PyPI)
 RUN pip3 install --no-cache-dir --upgrade pip setuptools wheel && \
-    pip3 install --no-cache-dir \
-    aiohttp \
-    aiosqlite \
-    asyncpg \
-    bencode-py \
-    curl-cffi \
-    databases \
-    demagnetize \
-    fastapi \
-    gunicorn \
-    jinja2 \
-    loguru \
-    mediaflow-proxy \
-    orjson \
-    pydantic-settings \
-    python-multipart \
-    rank-torrent-name \
-    uvicorn
+    pip3 install --no-cache-dir uv && \
+    uv sync
+
+# Verify installation and create logs directory
+RUN mkdir -p /app/comet/logs && \
+    uv run python -c "import comet; print('Comet imported successfully')"
 
 # --- Config Setup ---
 RUN mkdir -p /config/prowlarr
