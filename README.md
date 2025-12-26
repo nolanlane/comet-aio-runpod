@@ -11,17 +11,15 @@ Three services. One Pod. Zero friction.
 This repo includes a GitHub Action (`.github/workflows/docker-publish.yml`) that automatically builds and pushes to Docker Hub on every commit to `main`.
 
 ### Setup
-1.  **Create Repo**: Push this code to a new GitHub repository.
-2.  **Secrets**: Go to **Settings** > **Secrets and variables** > **Actions** > **New repository secret**.
-    *   `DOCKER_USERNAME`: Your Docker Hub username.
-    *   `DOCKER_PASSWORD`: Your Docker Hub Access Token (or password).
-3.  **Push**: Commit and push. The Action will trigger and publish `yourusername/comet-aio:latest`.
+1.  **Repo Created**: https://github.com/nolanlane/comet-aio-runpod
+2.  **Secrets Configured**: `DOCKER_USERNAME` and `DOCKER_PASSWORD` are set.
+3.  **Automatic Builds**: Any push to `main` triggers a build and publish to `nolanlane/comet-aio:latest`.
 
 ## 2. RunPod Deploy
 
 1.  Go to **RunPod** > **Deploy** > **CPU Pod**.
 2.  Select **1 vCPU / 2-4 GB RAM** (Plenty for this stack).
-3.  **Container Image**: `yourusername/comet-aio:latest`
+3.  **Container Image**: `nolanlane/comet-aio:latest`
 4.  **Edit Pod** > **Environment Variables**. Paste these:
 
     ```env
