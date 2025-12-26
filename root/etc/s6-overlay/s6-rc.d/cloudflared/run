@@ -1,3 +1,16 @@
 #!/command/with-contenv
+
+if [ -z "$CF_TUNNEL_TOKEN" ]; then
+    echo "----------------------------------------------------------------"
+    echo " NOTICE: CF_TUNNEL_TOKEN is missing."
+    echo " Cloudflared tunnel is DISABLED."
+    echo " Access your services via RunPod's Public Proxy URLs:"
+    echo " - Comet:    https://{POD_ID}-8000.proxy.runpod.net"
+    echo " - Prowlarr: https://{POD_ID}-9696.proxy.runpod.net"
+    echo "----------------------------------------------------------------"
+    # Sleep forever to keep the s6 service 'up' without restarting
+    exec sleep infinity
+fi
+
 # Run cloudflared with the provided token
 exec cloudflared tunnel --no-autoupdate run --token "$CF_TUNNEL_TOKEN"
