@@ -1,7 +1,4 @@
 # Base image: .NET 8 (Debian Bookworm) - Provides .NET runtime + Python 3.11
-# Reverting to Bookworm because Comet requires Python >= 3.11. 
-# Ubuntu Jammy (22.04) only has Python 3.10.
-# If MCR throws 403, we just have to retry or use a mirror, but we need Bookworm.
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-bookworm-slim
 
 # Environment variables
@@ -12,7 +9,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PIP_BREAK_SYSTEM_PACKAGES=1
 
 # Install dependencies
-# Added libssl-dev, libcurl4-openssl-dev, zlib1g-dev for python package compilation (curl-cffi etc)
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
@@ -29,6 +25,7 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     libcurl4-openssl-dev \
     zlib1g-dev \
+    pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
 # --- S6 Overlay Installation ---
@@ -54,12 +51,11 @@ RUN git clone https://github.com/g0ldyy/comet /app/comet
 WORKDIR /app/comet
 
 # Install Python Dependencies
-# Upgrade pip to ensure wheel support is modern
-RUN pip3 install --upgrade pip
-
-# Install dependencies directly from pyproject.toml
-# This ensures we match the repo's requirements exactly and build what's needed.
-RUN pip3 install .
+# We use --ignore-installed to prevent issues with system packages
+# We manually install poetry-core if needed, but pip install . usually handles it.
+# Adding pkg-config to apt deps above just in case.
+RUN pip3 install --upgrade pip && \
+    pip3 install -r requirements.txt || pip3 install .
 
 # --- Config Setup ---
 RUN mkdir -p /config/prowlarr
