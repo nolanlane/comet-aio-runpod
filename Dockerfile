@@ -1,8 +1,8 @@
 # Base image: .NET 8 (Debian Bookworm) - Provides .NET runtime + Python 3.11
-# Switching registry mirror or using a more robust tag if MCR is flaky,
-# but usually MCR is fine. The 403 suggests a temporary glitch or rate limit.
-# Trying Ubuntu jammy base which is very stable for .NET 8 as an alternative.
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-jammy
+# Reverting to Bookworm because Comet requires Python >= 3.11. 
+# Ubuntu Jammy (22.04) only has Python 3.10.
+# If MCR throws 403, we just have to retry or use a mirror, but we need Bookworm.
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-bookworm-slim
 
 # Environment variables
 ENV PYTHONUNBUFFERED=1
@@ -12,6 +12,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PIP_BREAK_SYSTEM_PACKAGES=1
 
 # Install dependencies
+# Added libssl-dev, libcurl4-openssl-dev, zlib1g-dev for python package compilation (curl-cffi etc)
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
@@ -25,6 +26,9 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     python3-dev \
     libffi-dev \
+    libssl-dev \
+    libcurl4-openssl-dev \
+    zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # --- S6 Overlay Installation ---
@@ -49,25 +53,13 @@ RUN mkdir -p /usr/bin/Prowlarr && \
 RUN git clone https://github.com/g0ldyy/comet /app/comet
 WORKDIR /app/comet
 
-# Install Python Dependencies manually
-RUN pip3 install --no-cache-dir \
-    aiohttp \
-    aiosqlite \
-    asyncpg \
-    bencode-py \
-    curl-cffi \
-    databases \
-    demagnetize \
-    fastapi \
-    gunicorn \
-    jinja2 \
-    loguru \
-    mediaflow-proxy \
-    orjson \
-    pydantic-settings \
-    python-multipart \
-    rank-torrent-name \
-    uvicorn
+# Install Python Dependencies
+# Upgrade pip to ensure wheel support is modern
+RUN pip3 install --upgrade pip
+
+# Install dependencies directly from pyproject.toml
+# This ensures we match the repo's requirements exactly and build what's needed.
+RUN pip3 install .
 
 # --- Config Setup ---
 RUN mkdir -p /config/prowlarr
