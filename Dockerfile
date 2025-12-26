@@ -50,12 +50,28 @@ RUN mkdir -p /usr/bin/Prowlarr && \
 RUN git clone https://github.com/g0ldyy/comet /app/comet
 WORKDIR /app/comet
 
-# Install Python Dependencies
-# 1. Update build tools
-# 2. Install dependencies. We explicitly install 'curl-cffi' first as it can be tricky.
-RUN pip3 install --upgrade pip setuptools wheel && \
-    pip3 install curl-cffi && \
-    pip3 install .
+# Install Python Dependencies manually
+# CRITICAL FIX: Exclude 'asyncio' (built-in to Py3.11, breaks if installed from PyPI).
+# We install dependencies explicitly to bypass pyproject.toml errors.
+RUN pip3 install --no-cache-dir --upgrade pip setuptools wheel && \
+    pip3 install --no-cache-dir \
+    aiohttp \
+    aiosqlite \
+    asyncpg \
+    bencode-py \
+    curl-cffi \
+    databases \
+    demagnetize \
+    fastapi \
+    gunicorn \
+    jinja2 \
+    loguru \
+    mediaflow-proxy \
+    orjson \
+    pydantic-settings \
+    python-multipart \
+    rank-torrent-name \
+    uvicorn
 
 # --- Config Setup ---
 RUN mkdir -p /config/prowlarr
