@@ -9,7 +9,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PIP_BREAK_SYSTEM_PACKAGES=1
 
 # Install dependencies
-# We also need 'build-essential' and python dev headers for some python packages to build correctly (like curl-cffi or c-extensions)
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
@@ -47,8 +46,7 @@ RUN mkdir -p /usr/bin/Prowlarr && \
 RUN git clone https://github.com/g0ldyy/comet /app/comet
 WORKDIR /app/comet
 
-# Install Python Dependencies manually (since requirements.txt is missing and it uses pyproject.toml)
-# Excluded 'asyncio' as it is standard lib in 3.11
+# Install Python Dependencies manually
 RUN pip3 install --no-cache-dir \
     aiohttp \
     aiosqlite \
