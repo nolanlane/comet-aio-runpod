@@ -1,0 +1,17 @@
+#!/command/with-contenv
+
+# Debug script to check what's actually running
+echo "=== SERVICE STATUS DEBUG ==="
+echo "Time: $(date)"
+echo "Processes:"
+ps aux | grep -E "(Prowlarr|comet|uvicorn)" | grep -v grep || echo "No matching processes found"
+echo ""
+echo "Network connections:"
+netstat -tlnp 2>/dev/null | grep -E "(9696|8000)" || echo "No listeners on 9696/8000"
+echo ""
+echo "S6 service status:"
+s6-rc -a list | while read service; do
+    status=$(s6-svstat /var/run/s6/services/$service 2>/dev/null || echo "unknown")
+    echo "$service: $status"
+done
+echo "=== END DEBUG ==="

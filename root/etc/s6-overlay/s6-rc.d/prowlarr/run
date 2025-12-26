@@ -7,4 +7,11 @@ mkdir -p /config/prowlarr
 # This overrides any internal config.xml settings that might default to localhost
 export ASPNETCORE_URLS="http://+:9696"
 
-exec /usr/bin/Prowlarr/Prowlarr -nobrowser -data=/config/prowlarr
+echo "Starting Prowlarr with configuration:"
+echo "  - Data directory: /config/prowlarr"
+echo "  - Port: 9696"
+echo "  - URLs: ${ASPNETCORE_URLS}"
+echo "  - Command: /usr/bin/Prowlarr/Prowlarr -nobrowser -data=/config/prowlarr"
+
+# Start Prowlarr with explicit output
+exec /usr/bin/Prowlarr/Prowlarr -nobrowser -data=/config/prowlarr 2>&1
