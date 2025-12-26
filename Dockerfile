@@ -51,11 +51,11 @@ RUN git clone https://github.com/g0ldyy/comet /app/comet
 WORKDIR /app/comet
 
 # Install Python Dependencies
-# We use --ignore-installed to prevent issues with system packages
-# We manually install poetry-core if needed, but pip install . usually handles it.
-# Adding pkg-config to apt deps above just in case.
-RUN pip3 install --upgrade pip && \
-    pip3 install -r requirements.txt || pip3 install .
+# 1. Update build tools
+# 2. Install dependencies. We explicitly install 'curl-cffi' first as it can be tricky.
+RUN pip3 install --upgrade pip setuptools wheel && \
+    pip3 install curl-cffi && \
+    pip3 install .
 
 # --- Config Setup ---
 RUN mkdir -p /config/prowlarr
