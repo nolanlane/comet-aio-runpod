@@ -1,2 +1,10 @@
 #!/command/with-contenv
-/usr/bin/Prowlarr/Prowlarr -nobrowser -data=/config/prowlarr
+
+# Ensure configuration directory exists
+mkdir -p /config/prowlarr
+
+# FORCE Prowlarr (.NET Core) to bind to 0.0.0.0 on port 9696
+# This overrides any internal config.xml settings that might default to localhost
+export ASPNETCORE_URLS="http://+:9696"
+
+exec /usr/bin/Prowlarr/Prowlarr -nobrowser -data=/config/prowlarr
