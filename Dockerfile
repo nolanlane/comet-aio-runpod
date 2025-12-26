@@ -1,5 +1,8 @@
 # Base image: .NET 8 (Debian Bookworm) - Provides .NET runtime + Python 3.11
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-bookworm-slim
+# Switching registry mirror or using a more robust tag if MCR is flaky,
+# but usually MCR is fine. The 403 suggests a temporary glitch or rate limit.
+# Trying Ubuntu jammy base which is very stable for .NET 8 as an alternative.
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-jammy
 
 # Environment variables
 ENV PYTHONUNBUFFERED=1
